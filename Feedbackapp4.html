@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Study Visit Feedback</title>
+  <style>
+    body { 
+      font-family: Arial, sans-serif; 
+      margin: 20px; 
+      background-color: #f9fafb;
+      color: #333;
+    }
+    h2, h3, h4 { color: #00509e; }
+    form {
+      background: #ffffff;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0px 2px 8px rgba(0,0,0,0.1);
+      max-width: 700px;
+      margin-bottom: 20px;
+    }
+    label {
+      display: block;
+      margin-top: 10px;
+      font-weight: bold;
+    }
+    input, textarea, select {
+      width: 95%;
+      padding: 8px;
+      margin-top: 4px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 14px;
+    }
+    textarea { min-height: 60px; }
+    .crc-section {
+      background: #e9f3ff;
+      border: 1px solid #bcd4f6;
+      padding: 15px;
+      margin-top: 15px;
+      border-radius: 8px;
+    }
+    .team-section {
+      background: #f0f9f0;
+      border: 1px solid #c8e6c9;
+      padding: 15px;
+      margin-top: 15px;
+      border-radius: 8px;
+    }
+    .inline {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .inline input {
+      flex: 1;
+    }
+    button {
+      background-color: #00509e;
+      color: white;
+      padding: 10px 16px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 15px;
+      margin-top: 10px;
+    }
+    button:hover { background-color: #003f7f; }
+    #reportOutput {
+      background: #ffffff;
+      border: 1px solid #ddd;
+      padding: 15px;
+      border-radius: 8px;
+      box-shadow: 0px 2px 8px rgba(0,0,0,0.05);
+    }
+    #reportOutput strong {
+      font-weight: bold;
+    }
+  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body>
+  <h2>Study Visit Feedback Form</h2>
+  <form id="feedbackForm" onsubmit="return false;">
+    <label>Supervisor: <input type="text" id="supervisor" required></label>
+    <label>Start Date: <input type="date" id="startDate" required></label>
+    <label>End Date: <input type="date" id="endDate" required></label>
+    <label>Site Location: <input type="text" id="siteLocation" required></label>
+    <label>PI: <input type="text" id="piName" required></label>
+    <label>Study Name: <input type="text" id="studyName" required></label>
+    <label>Visit Number: <input type="text" id="visitNumber"></label>
+    
+    <label class="inline">
+      Number of CRCs:
+      <input type="number" id="numCRCs" min="1" required>
+      <button type="button" onclick="generateCRCs()">Add CRCs</button>
+    </label>
+    
+    <div class="team-section">
+      <h3>Team Performance Feedback</h3>
+      <label>Data Quality: <textarea id="teamDataQuality"></textarea></label>
+      <label>Professionalism: <textarea id="teamProfessionalism"></textarea></label>
+      <label>Preparedness / Training Compliance: <textarea id="teamPreparedness"></textarea></label>
+      <label>Compliance with Ora/SMO Policies: <textarea id="teamCompliance"></textarea></label>
+    </div>
+    
+    <div id="crcContainer"></div>
+    
+    <h3>Site Feedback</h3>
+    <label>Site Comments: <textarea id="siteComments"></textarea></label>
+    
+    <h3>Additional Comments</h3>
+    <label><textarea id="additionalComments" placeholder="Any other feedback..."></textarea></label>
+    
+    <button type="button" onclick="generateReport()">Generate Report</button>
+  </form>
+
+  <h2>Report</h2>
+  <div id="reportOutput"></div>
+  <button id="downloadBtn" class="hidden" onclick="downloadPDF()">Download as PDF</button>
+
+  <script>
+    function formatDate(dateStr) {
+      if (!dateStr) return "";
+      const date = new Date(dateStr);
+      if (isNaN(date)) return dateStr;
+      const day = String(date.getDate()).padStart(2, '0');
+      const month = date.toLocaleString('en-US', { month: 'short' });
+      const year = date.getFullYear();
+      return `${day}/${month}/${year}`;
+    }
+
+    function formatDateRange(startStr, endStr) {
+      const start = formatDate(startStr);
+      const end = formatDate(endStr);
+      if (!start && !end) return "";
+      if (start === end || !end) return start;
+      return `${start} to ${end}`;
+    }
+
+    function generateCRCs() {
+      const container = document.getElementById("crcContainer");
+      container.innerHTML = "";
+      const num = parseInt(document.getElementById("numCRCs").value);
+      if (!num || num < 1) return;
+      
+      for (let i = 1; i <= num; i++) {
+        container.insertAdjacentHTML("beforeend", `
+          <div class="crc-section">
+            <h4>CRC ${i}</h4>
+            <label>Name: <input type="text" id="crcName${i}" required></label>
+            <label>Role: <input type="text" id="crcRole${i}" required></label>
+            <label>Comments: <textarea id="crcComments${i}"></textarea></label>
+            
+            <label>Protocol Deviations? 
+              <select id="crcDeviation${i}" onchange="toggleDeviationField(${i})">
+                <option value="No">No</option>
+                <option value="Yes">Yes</option>
+              </select>
+            </label>
+            <label id="deviationLabel${i}" style="display:none;">
+              Describe Deviations:
+              <textarea id="crcDeviationText${i}"></textarea>
+            </label>
+          </div>`);
+      }
+    }
+
+    function toggleDeviationField(i) {
+      const select = document.getElementById(`crcDeviation${i}`);
+      const label = document.getElementById(`deviationLabel${i}`);
+      if (select.value === "Yes") {
+        label.style.display = "block";
+      } else {
+        label.style.display = "none";
+        document.getElementById(`crcDeviationText${i}`).value = "";
+      }
+    }
+
+    function generateReport() {
+      let reportHTML = `<strong>Supervisor:</strong> ${document.getElementById("supervisor").value}<br>`;
+      reportHTML += `<strong>Date:</strong> ${formatDateRange(document.getElementById("startDate").value, document.getElementById("endDate").value)}<br>`;
+      reportHTML += `<strong>Site:</strong> ${document.getElementById("siteLocation").value}<br>`;
+      reportHTML += `<strong>PI:</strong> ${document.getElementById("piName").value}<br>`;
+      reportHTML += `<strong>Study:</strong> ${document.getElementById("studyName").value}<br>`;
+      if (document.getElementById("visitNumber").value) {
+        reportHTML += `<strong>Visit #:</strong> ${document.getElementById("visitNumber").value}<br>`;
+      }
+      reportHTML += `<br><strong>Team Performance Feedback</strong><br>`;
+      reportHTML += `Data Quality: ${document.getElementById("teamDataQuality").value}<br>`;
+      reportHTML += `Professionalism: ${document.getElementById("teamProfessionalism").value}<br>`;
+      reportHTML += `Preparedness / Training Compliance: ${document.getElementById("teamPreparedness").value}<br>`;
+      reportHTML += `Compliance with Ora/SMO Policies: ${document.getElementById("teamCompliance").value}<br><br>`;
+
+      const num = parseInt(document.getElementById("numCRCs").value);
+      for (let i = 1; i <= num; i++) {
+        const name = document.getElementById("crcName"+i).value || `CRC ${i}`;
+        reportHTML += `<strong>${name}</strong><br>`;
+        reportHTML += `Role: ${document.getElementById("crcRole"+i).value}<br>`;
+        reportHTML += `Comments: ${document.getElementById("crcComments"+i).value}<br>`;
+        const deviation = document.getElementById("crcDeviation"+i).value;
+        reportHTML += `Protocol Deviations: ${deviation}<br>`;
+        if (deviation === "Yes") {
+          reportHTML += `Deviation Details: ${document.getElementById("crcDeviationText"+i).value}<br>`;
+        }
+        reportHTML += `<br>`;
+      }
+
+      reportHTML += `<strong>Site Comments:</strong> ${document.getElementById("siteComments").value}<br><br>`;
+      reportHTML += `<strong>Additional Comments:</strong> ${document.getElementById("additionalComments").value}<br>`;
+
+      document.getElementById("reportOutput").innerHTML = reportHTML;
+      document.getElementById("downloadBtn").classList.remove("hidden");
+    }
+
+    function downloadPDF() {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+
+      const margin = 15;
+      const topMargin = 28;
+      const bottomMargin = 15;
+      const lineHeight = 6.5;
+      const pageW = doc.internal.pageSize.getWidth();
+      const pageH = doc.internal.pageSize.getHeight();
+      const textW = pageW - margin * 2;
+      let y = topMargin;
+
+      // Colored header
+      doc.setFillColor(0, 80, 158);
+      doc.rect(0, 0, pageW, 20, "F");
+      doc.setTextColor(255, 255, 255);
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(14);
+      doc.text("Study Visit Feedback", margin, 12);
+      doc.setTextColor(0, 0, 0);
+
+      function addPageIfNeeded(lines = 1) {
+        if (y + lines * lineHeight > pageH - bottomMargin) {
+          doc.addPage();
+          y = topMargin;
+        }
+      }
+
+      function printKV(label, value, indent = 0) {
+        if (!value && value !== 0) return;
+        const labelText = label + ":";
+        doc.setFontSize(11);
+        doc.setFont("helvetica", "bold");
+        const labelWidth = doc.getTextWidth(labelText);
+        const xLabel = margin + indent;
+        const xValue = xLabel + labelWidth + 3;
+
+        const maxLabelWidth = textW * 0.45;
+        if (labelWidth > maxLabelWidth || xValue > margin + textW - 10) {
+          // put value on next line
+          const labelLines = doc.splitTextToSize(labelText, textW - indent);
+          addPageIfNeeded(labelLines.length);
+          doc.text(labelLines, xLabel, y);
+          y += labelLines.length * lineHeight;
+
+          doc.setFont("helvetica", "normal");
+          const valueLines = doc.splitTextToSize(String(value), textW - indent - 6);
+          addPageIfNeeded(valueLines.length);
+          doc.text(valueLines, xLabel + 6, y);
+          y += valueLines.length * lineHeight;
+        } else {
+          // same line
+          addPageIfNeeded(1);
+          doc.text(labelText, xLabel, y);
+          doc.setFont("helvetica", "normal");
+          const vLines = doc.splitTextToSize(String(value), textW - (xValue - margin));
+          doc.text(vLines[0], xValue, y);
+          for (let i = 1; i < vLines.length; i++) {
+            y += lineHeight;
+            addPageIfNeeded(1);
+            doc.text(vLines[i], xValue, y);
+          }
+          y += lineHeight;
+        }
+      }
+
+      function printSectionTitle(text) {
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(11);
+        const lines = doc.splitTextToSize(text, textW);
+        addPageIfNeeded(lines.length);
+        doc.text(lines, margin, y);
+        y += lines.length * lineHeight;
+      }
+
+      function gap(mult = 1) {
+        y += lineHeight * mult;
+      }
+
+      // Body
+      printKV("Supervisor", document.getElementById("supervisor").value);
+      printKV("Date", formatDateRange(document.getElementById("startDate").value, document.getElementById("endDate").value));
+      printKV("Site", document.getElementById("siteLocation").value);
+      printKV("PI", document.getElementById("piName").value);
+      printKV("Study", document.getElementById("studyName").value);
+      if (document.getElementById("visitNumber").value) {
+        printKV("Visit #", document.getElementById("visitNumber").value);
+      }
+
+      gap(0.5);
+      printSectionTitle("Team Performance Feedback");
+      doc.setFont("helvetica", "normal");
+      printKV("Data Quality", document.getElementById("teamDataQuality").value, 4);
+      printKV("Professionalism", document.getElementById("teamProfessionalism").value, 4);
+      printKV("Preparedness / Training Compliance", document.getElementById("teamPreparedness").value, 4);
+      printKV("Compliance with Ora/SMO Policies", document.getElementById("teamCompliance").value, 4);
+
+      const num = parseInt(document.getElementById("numCRCs").value || "0", 10);
+      for (let i = 1; i <= num; i++) {
+        gap(0.5);
+        const name = document.getElementById("crcName"+i).value || `CRC ${i}`;
+        printSectionTitle(name);
+        doc.setFont("helvetica", "normal");
+        printKV("Role", document.getElementById("crcRole"+i).value, 4);
+        printKV("Comments", document.getElementById("crcComments"+i).value, 4);
+        const deviation = document.getElementById("crcDeviation"+i).value;
+        printKV("Protocol Deviations", deviation, 4);
+        if (deviation === "Yes") {
+          printKV("Deviation Details", document.getElementById("crcDeviationText"+i).value, 4);
+        }
+      }
+
+      gap(0.5);
+      printKV("Site Comments", document.getElementById("siteComments").value);
+      gap(0.5);
+      printKV("Additional Comments", document.getElementById("additionalComments").value);
+
+      // Filename
+      const start = formatDate(document.getElementById("startDate").value) || "NoStart";
+      const end = formatDate(document.getElementById("endDate").value) || "NoEnd";
+      const site = (document.getElementById("siteLocation").value || "NoSite").replace(/\s+/g, "_");
+      const study = (document.getElementById("studyName").value || "NoStudy").replace(/\s+/g, "_");
+      const filename = (start === end || !end)
+        ? `Feedback_${start}_${site}_${study}.pdf`
+        : `Feedback_${start}_to_${end}_${site}_${study}.pdf`;
+
+      doc.save(filename);
+    }
+  </script>
+</body>
+</html>
