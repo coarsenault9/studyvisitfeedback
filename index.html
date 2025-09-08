@@ -15,7 +15,7 @@
       padding: 20px;
       border-radius: 12px;
       box-shadow: 0px 2px 8px rgba(0,0,0,0.1);
-      max-width: 700px;
+      max-width: 900px;
       margin-bottom: 20px;
     }
     label {
@@ -39,19 +39,53 @@
       margin-top: 15px;
       border-radius: 8px;
     }
+    .team-wrapper {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+      margin-top: 15px;
+    }
     .team-section {
+      flex: 2;
       background: #f0f9f0;
       border: 1px solid #c8e6c9;
       padding: 15px;
-      margin-top: 15px;
       border-radius: 8px;
+      min-width: 280px;
     }
-    .inline {
+    .definitions-box {
+      flex: 1;
+      background: #fff8e1;
+      border: 1px solid #ffecb3;
+      padding: 15px;
+      border-radius: 8px;
+      font-size: 13px;
+      min-width: 250px;
+      max-width: 350px;
+    }
+    .definitions-box h4 {
+      margin-top: 0;
+      color: #c47f00;
+    }
+    .definitions-box strong {
+      display: block;
+      margin-top: 10px;
+      color: #444;
+    }
+    .definitions-box ul {
+      margin: 4px 0 10px 18px;
+      padding: 0;
+    }
+    .definitions-box li {
+      margin-bottom: 4px;
+    }
+    .inline-btn {
       display: flex;
-      align-items: center;
       gap: 10px;
+      align-items: center;
+      margin-top: 5px;
     }
-    .inline input {
+    .inline-btn input {
       flex: 1;
     }
     button {
@@ -72,9 +106,8 @@
       border-radius: 8px;
       box-shadow: 0px 2px 8px rgba(0,0,0,0.05);
     }
-    #reportOutput strong {
-      font-weight: bold;
-    }
+    #reportOutput strong { font-weight: bold; }
+    .hidden { display: none; }  /* ensures the PDF button hides initially */
   </style>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
@@ -85,22 +118,44 @@
     <label>Start Date: <input type="date" id="startDate" required></label>
     <label>End Date: <input type="date" id="endDate" required></label>
     <label>Site Location: <input type="text" id="siteLocation" required></label>
-    <label>PI: <input type="text" id="piName" required></label>
+    <label>PI:</label>
+    <input type="text" id="piName" required>
     <label>Study Name: <input type="text" id="studyName" required></label>
     <label>Visit Number: <input type="text" id="visitNumber"></label>
     
-    <label class="inline">
-      Number of CRCs:
+    <label>Number of CRCs:</label>
+    <div class="inline-btn">
       <input type="number" id="numCRCs" min="1" required>
-      <button type="button" onclick="generateCRCs()">Add CRCs</button>
-    </label>
+      <button type="button" id="addCrcBtn">Add CRCs</button>
+    </div>
     
-    <div class="team-section">
-      <h3>Team Performance Feedback</h3>
-      <label>Data Quality: <textarea id="teamDataQuality"></textarea></label>
-      <label>Professionalism: <textarea id="teamProfessionalism"></textarea></label>
-      <label>Preparedness / Training Compliance: <textarea id="teamPreparedness"></textarea></label>
-      <label>Compliance with Ora/SMO Policies: <textarea id="teamCompliance"></textarea></label>
+    <div class="team-wrapper">
+      <div class="team-section">
+        <h3>Team Performance Feedback</h3>
+        <label>Data Quality: <textarea id="teamDataQuality"></textarea></label>
+        <label>Professionalism: <textarea id="teamProfessionalism"></textarea></label>
+        <label>Preparedness / Training Compliance: <textarea id="teamPreparedness"></textarea></label>
+      </div>
+      <div class="definitions-box">
+        <h4>Definitions</h4>
+        <strong>Data Quality</strong>
+        <ul>
+          <li>Exhibit Good Clinical Practices (GCP) and Good Documentation Practices (GDP).</li>
+          <li>Exhibit protocol compliance during study visit (measured in terms of protocol deviations).</li>
+        </ul>
+        <strong>Business Acumen & Professional Etiquette</strong>
+        <ul>
+          <li>Report on time in the clinic or hotel lobby as assigned by the Supervisor.</li>
+          <li>Limit cell phone usage to breaks (no social media/personal tasks during study visits).</li>
+          <li>Adhere to clinic dress code: Ora scrubs, appropriate inner/outer layers, closed-toed shoes.</li>
+          <li>Avoid: non-Ora scrubs, bright inner layers, sweatshirts/hoodies, crocs or unprofessional attire.</li>
+        </ul>
+        <strong>Study Preparedness & Training Compliance</strong>
+        <ul>
+          <li>Complete study-specific training ahead of the study visit.</li>
+          <li>Obtain access to study database ahead of the study visit.</li>
+        </ul>
+      </div>
     </div>
     
     <div id="crcContainer"></div>
@@ -119,6 +174,10 @@
   <button id="downloadBtn" class="hidden" onclick="downloadPDF()">Download as PDF</button>
 
   <script>
+    // Hook up the Add CRCs button
+    document.getElementById("addCrcBtn").addEventListener("click", generateCRCs);
+
+    // ---- Helpers ----
     function formatDate(dateStr) {
       if (!dateStr) return "";
       const date = new Date(dateStr);
@@ -137,6 +196,7 @@
       return `${start} to ${end}`;
     }
 
+    // ---- CRC dynamic fields ----
     function generateCRCs() {
       const container = document.getElementById("crcContainer");
       container.innerHTML = "";
@@ -176,6 +236,7 @@
       }
     }
 
+    // ---- Report preview ----
     function generateReport() {
       let reportHTML = `<strong>Supervisor:</strong> ${document.getElementById("supervisor").value}<br>`;
       reportHTML += `<strong>Date:</strong> ${formatDateRange(document.getElementById("startDate").value, document.getElementById("endDate").value)}<br>`;
@@ -188,8 +249,7 @@
       reportHTML += `<br><strong>Team Performance Feedback</strong><br>`;
       reportHTML += `Data Quality: ${document.getElementById("teamDataQuality").value}<br>`;
       reportHTML += `Professionalism: ${document.getElementById("teamProfessionalism").value}<br>`;
-      reportHTML += `Preparedness / Training Compliance: ${document.getElementById("teamPreparedness").value}<br>`;
-      reportHTML += `Compliance with Ora/SMO Policies: ${document.getElementById("teamCompliance").value}<br><br>`;
+      reportHTML += `Preparedness / Training Compliance: ${document.getElementById("teamPreparedness").value}<br><br>`;
 
       const num = parseInt(document.getElementById("numCRCs").value);
       for (let i = 1; i <= num; i++) {
@@ -212,6 +272,7 @@
       document.getElementById("downloadBtn").classList.remove("hidden");
     }
 
+    // ---- PDF generator (restored & working) ----
     function downloadPDF() {
       const { jsPDF } = window.jspdf;
       const doc = new jsPDF();
@@ -243,56 +304,69 @@
 
       function printKV(label, value, indent = 0) {
         if (!value && value !== 0) return;
-        const labelText = label + ":";
+        const labelText = label ? label + ":" : "";
         doc.setFontSize(11);
-        doc.setFont("helvetica", "bold");
-        const labelWidth = doc.getTextWidth(labelText);
         const xLabel = margin + indent;
-        const xValue = xLabel + labelWidth + 3;
 
-        const maxLabelWidth = textW * 0.45;
-        if (labelWidth > maxLabelWidth || xValue > margin + textW - 10) {
-          // put value on next line
-          const labelLines = doc.splitTextToSize(labelText, textW - indent);
-          addPageIfNeeded(labelLines.length);
-          doc.text(labelLines, xLabel, y);
-          y += labelLines.length * lineHeight;
+        if (labelText) {
+          doc.setFont("helvetica", "bold");
+          const labelWidth = doc.getTextWidth(labelText);
+          const xValue = xLabel + labelWidth + 3;
+          const maxLabelWidth = textW * 0.45;
 
-          doc.setFont("helvetica", "normal");
-          const valueLines = doc.splitTextToSize(String(value), textW - indent - 6);
-          addPageIfNeeded(valueLines.length);
-          doc.text(valueLines, xLabel + 6, y);
-          y += valueLines.length * lineHeight;
-        } else {
-          // same line
-          addPageIfNeeded(1);
-          doc.text(labelText, xLabel, y);
-          doc.setFont("helvetica", "normal");
-          const vLines = doc.splitTextToSize(String(value), textW - (xValue - margin));
-          doc.text(vLines[0], xValue, y);
-          for (let i = 1; i < vLines.length; i++) {
-            y += lineHeight;
+          if (labelWidth > maxLabelWidth || xValue > margin + textW - 10) {
+            // Long label → value on next line
+            const labelLines = doc.splitTextToSize(labelText, textW - indent);
+            addPageIfNeeded(labelLines.length);
+            doc.text(labelLines, xLabel, y);
+            y += labelLines.length * lineHeight;
+
+            doc.setFont("helvetica", "normal");
+            const valueLines = doc.splitTextToSize(String(value), textW - indent - 6);
+            addPageIfNeeded(valueLines.length);
+            doc.text(valueLines, xLabel + 6, y);
+            y += valueLines.length * lineHeight;
+          } else {
+            // Same line
             addPageIfNeeded(1);
-            doc.text(vLines[i], xValue, y);
+            doc.text(labelText, xLabel, y);
+            doc.setFont("helvetica", "normal");
+            const vLines = doc.splitTextToSize(String(value), textW - (xValue - margin));
+            doc.text(vLines[0], xValue, y);
+            for (let i = 1; i < vLines.length; i++) {
+              y += lineHeight;
+              addPageIfNeeded(1);
+              doc.text(vLines[i], xValue, y);
+            }
+            y += lineHeight;
           }
-          y += lineHeight;
+        } else {
+          // No label (used for section body blocks)
+          doc.setFont("helvetica", "normal");
+          const lines = doc.splitTextToSize(String(value), textW - indent);
+          addPageIfNeeded(lines.length);
+          doc.text(lines, xLabel, y);
+          y += lines.length * lineHeight;
         }
       }
 
-      function printSectionTitle(text) {
+      function printSectionTitle(text, underline = false) {
         doc.setFont("helvetica", "bold");
         doc.setFontSize(11);
         const lines = doc.splitTextToSize(text, textW);
         addPageIfNeeded(lines.length);
         doc.text(lines, margin, y);
+        if (underline) {
+          const lineW = doc.getTextWidth(text);
+          doc.setLineWidth(0.5);
+          doc.line(margin, y + 1, margin + lineW, y + 1);
+        }
         y += lines.length * lineHeight;
       }
 
-      function gap(mult = 1) {
-        y += lineHeight * mult;
-      }
+      function gap(mult = 1) { y += lineHeight * mult; }
 
-      // Body
+      // Body summary
       printKV("Supervisor", document.getElementById("supervisor").value);
       printKV("Date", formatDateRange(document.getElementById("startDate").value, document.getElementById("endDate").value));
       printKV("Site", document.getElementById("siteLocation").value);
@@ -303,19 +377,17 @@
       }
 
       gap(0.5);
-      printSectionTitle("Team Performance Feedback");
-      doc.setFont("helvetica", "normal");
+      printSectionTitle("Team Performance Feedback", true);
       printKV("Data Quality", document.getElementById("teamDataQuality").value, 4);
       printKV("Professionalism", document.getElementById("teamProfessionalism").value, 4);
       printKV("Preparedness / Training Compliance", document.getElementById("teamPreparedness").value, 4);
-      printKV("Compliance with Ora/SMO Policies", document.getElementById("teamCompliance").value, 4);
 
+      // CRCs
       const num = parseInt(document.getElementById("numCRCs").value || "0", 10);
       for (let i = 1; i <= num; i++) {
         gap(0.5);
         const name = document.getElementById("crcName"+i).value || `CRC ${i}`;
-        printSectionTitle(name);
-        doc.setFont("helvetica", "normal");
+        printSectionTitle(name, true);
         printKV("Role", document.getElementById("crcRole"+i).value, 4);
         printKV("Comments", document.getElementById("crcComments"+i).value, 4);
         const deviation = document.getElementById("crcDeviation"+i).value;
@@ -326,16 +398,18 @@
       }
 
       gap(0.5);
-      printKV("Site Comments", document.getElementById("siteComments").value);
+      printSectionTitle("Site Comments", true);
+      printKV("", document.getElementById("siteComments").value);
       gap(0.5);
-      printKV("Additional Comments", document.getElementById("additionalComments").value);
+      printSectionTitle("Additional Comments", true);
+      printKV("", document.getElementById("additionalComments").value);
 
       // Filename
       const start = formatDate(document.getElementById("startDate").value) || "NoStart";
       const end = formatDate(document.getElementById("endDate").value) || "NoEnd";
       const site = (document.getElementById("siteLocation").value || "NoSite").replace(/\s+/g, "_");
       const study = (document.getElementById("studyName").value || "NoStudy").replace(/\s+/g, "_");
-      const filename = (start === end || !end)
+      const filename = (start === end || !end) 
         ? `Feedback_${start}_${site}_${study}.pdf`
         : `Feedback_${start}_to_${end}_${site}_${study}.pdf`;
 
