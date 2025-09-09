@@ -109,7 +109,10 @@
     #reportOutput strong { font-weight: bold; }
     .hidden { display: none; }  /* ensures the PDF button hides initially */
   </style>
+  <!-- jsPDF 2.5.1 -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <!-- EmailJS SDK -->
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 </head>
 <body>
   <h2>Study Visit Feedback Form</h2>
@@ -171,20 +174,28 @@
 
   <h2>Report</h2>
   <div id="reportOutput"></div>
-  <button id="downloadBtn" class="hidden" onclick="downloadPDF()">Download as PDF</button>
+  <button id="downloadBtn" class="hidden" onclick="downloadPDF()">Email & Download PDF</button>
 
   <script>
-    // Hook up the Add CRCs button
+    // ---------- CRC Button ----------
     document.getElementById("addCrcBtn").addEventListener("click", generateCRCs);
 
-    // ---- Helpers ----
+    // ---------- Date helpers (timezone-safe: parse as LOCAL, not UTC) ----------
+    function parseDateLocal(yyyy_mm_dd) {
+      // Expect "YYYY-MM-DD" (from <input type="date">). Parse without timezone.
+      if (!yyyy_mm_dd) return null;
+      const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(yyyy_mm_dd);
+      if (!m) return null;
+      const [_, y, mo, d] = m;
+      return new Date(Number(y), Number(mo) - 1, Number(d)); // local midnight
+    }
+
     function formatDate(dateStr) {
-      if (!dateStr) return "";
-      const date = new Date(dateStr);
-      if (isNaN(date)) return dateStr;
-      const day = String(date.getDate()).padStart(2, '0');
-      const month = date.toLocaleString('en-US', { month: 'short' });
-      const year = date.getFullYear();
+      const d = parseDateLocal(dateStr);
+      if (!d) return "";
+      const day = String(d.getDate()).padStart(2, '0');
+      const month = d.toLocaleString('en-US', { month: 'short' });
+      const year = d.getFullYear();
       return `${day}/${month}/${year}`;
     }
 
@@ -196,7 +207,20 @@
       return `${start} to ${end}`;
     }
 
-    // ---- CRC dynamic fields ----
+    // For EmailJS filename date (YYYY-MM-DD)
+    function toISODate(dateStr) {
+      const d = parseDateLocal(dateStr) || new Date();
+      const pad = n => String(n).padStart(2,'0');
+      return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+    }
+
+    // Build a subject-safe date range (no slashes)
+    function subjectDateRange(startStr, endStr) {
+      const pretty = formatDateRange(startStr, endStr);        // e.g., 23/Sep/2025 to 25/Sep/2025
+      return pretty.replace(/\//g, "-");                       // -> 23-Sep-2025 to 25-Sep-2025
+    }
+
+    // ---------- CRC dynamic fields ----------
     function generateCRCs() {
       const container = document.getElementById("crcContainer");
       container.innerHTML = "";
@@ -218,7 +242,7 @@
               </select>
             </label>
             <label id="deviationLabel${i}" style="display:none;">
-              Describe Deviations:
+              Describe Deviations: <em>(type of deviation, cause of deviation and any corrective action taken)</em><br>
               <textarea id="crcDeviationText${i}"></textarea>
             </label>
           </div>`);
@@ -236,7 +260,7 @@
       }
     }
 
-    // ---- Report preview ----
+    // ---------- Report preview ----------
     function generateReport() {
       let reportHTML = `<strong>Supervisor:</strong> ${document.getElementById("supervisor").value}<br>`;
       reportHTML += `<strong>Date:</strong> ${formatDateRange(document.getElementById("startDate").value, document.getElementById("endDate").value)}<br>`;
@@ -272,8 +296,68 @@
       document.getElementById("downloadBtn").classList.remove("hidden");
     }
 
-    // ---- PDF generator (restored & working) ----
-    function downloadPDF() {
+    // ---------- EmailJS (with subject-safe range) ----------
+    const EMAIL_TO = "recipient@example.com"; // <- set the recipient you want
+    emailjs.init({ publicKey: "XrSFri5K-8boAX6f9" });
+    const EMAILJS_SERVICE_ID  = "service_yfhb0eo";
+    const EMAILJS_TEMPLATE_ID = "template_zduciok";
+
+    async function emailjs_sendAndSave(doc, filename) {
+      // Build dynamic values from the form (using local-date helpers)
+      const supervisor = document.getElementById("supervisor").value || "";
+      const site       = document.getElementById("siteLocation").value || "";
+      const pi         = document.getElementById("piName").value || "";
+      const study      = document.getElementById("studyName").value || "";
+      const visit      = document.getElementById("visitNumber").value || "";
+
+      const startVal = document.getElementById("startDate").value;
+      const endVal   = document.getElementById("endDate").value;
+
+      const dateRangePretty   = formatDateRange(startVal, endVal) || "";
+      const dateRangeForTitle = subjectDateRange(startVal, endVal) || "";
+      const isoDateForFilename = toISODate(startVal);
+
+      // Subject uses the hyphenated range to avoid HTML-escaped slashes
+      const subject = `Feedback - ${study}${visit ? " V" + visit : ""} - ${site} - ${dateRangeForTitle}`;
+
+      // PDF as base64 data URL
+      const dataUrl = doc.output("datauristring");
+
+      // Params sent to EmailJS (names must match your template placeholders)
+      const params = {
+        to_email: EMAIL_TO,
+        subject: subject,                  // if your template's Subject is {{subject}}, this will be used
+        message: "Attached is the Study Visit Feedback PDF.",
+        date: isoDateForFilename,          // used by Study_Visit_{{date}}.pdf in attachments
+
+        // Dynamic fields for the email template body:
+        supervisor: supervisor,
+        study: study,
+        site: site,
+        visit: visit,
+        pi: pi,
+        date_range: dateRangePretty,       // body keeps slashes, looks nice
+
+        // Extra: subject-safe date range if you want to build subject inside template
+        subject_date_range: dateRangeForTitle,
+
+        // Attachment
+        pdf_data: dataUrl
+      };
+
+      try {
+        await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, params);
+        doc.save(filename);
+        alert("PDF emailed successfully!");
+      } catch (err) {
+        console.error("EmailJS send error:", err);
+        alert("Email failed — downloading locally anyway.");
+        doc.save(filename);
+      }
+    }
+
+    // ---- PDF generator (original content; final line patched) ----
+    async function downloadPDF() {
       const { jsPDF } = window.jspdf;
       const doc = new jsPDF();
 
@@ -413,7 +497,8 @@
         ? `Feedback_${start}_${site}_${study}.pdf`
         : `Feedback_${start}_to_${end}_${site}_${study}.pdf`;
 
-      doc.save(filename);
+      // Email via EmailJS with dynamic fields, then save locally
+      await emailjs_sendAndSave(doc, filename);
     }
   </script>
 </body>
