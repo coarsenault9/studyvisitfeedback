@@ -3,141 +3,58 @@
 <head>
   <title>Study Visit Feedback</title>
   <style>
-    body { 
-      font-family: Arial, sans-serif; 
-      margin: 20px; 
-      background-color: #f9fafb;
-      color: #333;
-    }
-    h2, h3, h4 { color: #00509e; }
-    form {
-      background: #ffffff;
-      padding: 20px;
-      border-radius: 12px;
-      box-shadow: 0px 2px 8px rgba(0,0,0,0.1);
-      max-width: 900px;
-      margin-bottom: 20px;
-    }
-    label {
-      display: block;
-      margin-top: 10px;
-      font-weight: bold;
-    }
-    input, textarea, select {
-      width: 95%;
-      padding: 8px;
-      margin-top: 4px;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-      font-size: 14px;
-    }
-    textarea { min-height: 60px; }
-    .crc-section {
-      background: #e9f3ff;
-      border: 1px solid #bcd4f6;
-      padding: 15px;
-      margin-top: 15px;
-      border-radius: 8px;
-    }
-    .team-wrapper {
-      display: flex;
-      gap: 20px;
-      flex-wrap: wrap;
-      margin-top: 15px;
-    }
-    .team-section {
-      flex: 2;
-      background: #f0f9f0;
-      border: 1px solid #c8e6c9;
-      padding: 15px;
-      border-radius: 8px;
-      min-width: 280px;
-    }
-    .definitions-box {
-      flex: 1;
-      background: #fff8e1;
-      border: 1px solid #ffecb3;
-      padding: 15px;
-      border-radius: 8px;
-      font-size: 13px;
-      min-width: 250px;
-      max-width: 350px;
-    }
-    .definitions-box h4 {
-      margin-top: 0;
-      color: #c47f00;
-    }
-    .definitions-box strong {
-      display: block;
-      margin-top: 10px;
-      color: #444;
-    }
-    .definitions-box ul {
-      margin: 4px 0 10px 18px;
-      padding: 0;
-    }
-    .definitions-box li {
-      margin-bottom: 4px;
-    }
-    .inline-btn {
-      display: flex;
-      gap: 10px;
-      align-items: center;
-      margin-top: 5px;
-    }
-    .inline-btn input {
-      flex: 1;
-    }
-    button {
-      background-color: #00509e;
-      color: white;
-      padding: 10px 16px;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: 15px;
-      margin-top: 10px;
-    }
-    button:hover { background-color: #003f7f; }
-    #reportOutput {
-      background: #ffffff;
-      border: 1px solid #ddd;
-      padding: 15px;
-      border-radius: 8px;
-      box-shadow: 0px 2px 8px rgba(0,0,0,0.05);
-    }
-    #reportOutput strong { font-weight: bold; }
-    .hidden { display: none; }  /* ensures the PDF button hides initially */
+    body{font-family:Arial,sans-serif;margin:20px;background:#f9fafb;color:#333}
+    h2,h3,h4{color:#00509e;margin:0}
+    form{background:#fff;padding:20px;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,0.1);max-width:900px;margin-bottom:20px}
+    label{display:block;margin-top:10px;font-weight:bold}
+    input,textarea,select{width:95%;padding:8px;margin-top:4px;border:1px solid #ccc;border-radius:6px;font-size:14px}
+    textarea{min-height:60px}
+    .crc-section{background:#e9f3ff;border:1px solid #bcd4f6;padding:15px;margin-top:15px;border-radius:8px}
+    .team-wrapper{display:flex;gap:20px;flex-wrap:wrap;margin-top:15px}
+    .team-section{flex:2;background:#f0f9f0;border:1px solid #c8e6c9;padding:15px;border-radius:8px;min-width:280px}
+    .definitions-box{flex:1;background:#fff8e1;border:1px solid #ffecb3;padding:15px;border-radius:8px;font-size:13px;min-width:250px;max-width:350px}
+    .definitions-box h4{margin-top:0;color:#c47f00}
+    .definitions-box strong{display:block;margin-top:10px;color:#444}
+    .definitions-box ul{margin:4px 0 10px 18px;padding:0}
+    .definitions-box li{margin-bottom:4px}
+    button{background:#00509e;color:#fff;padding:10px 16px;border:none;border-radius:6px;cursor:pointer;font-size:15px;margin-top:10px}
+    button:hover{background:#003f7f}
+    #reportOutput{background:#fff;border:1px solid #ddd;padding:15px;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,0.05)}
+    #reportOutput strong{font-weight:bold}
+    .hidden{display:none}
+    .title-row{display:flex;align-items:center;gap:15px;margin-bottom:15px}
+    .title-row img{max-height:50px}
   </style>
-  <!-- jsPDF 2.5.1 -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <!-- EmailJS SDK -->
   <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 </head>
 <body>
-  <h2>Study Visit Feedback Form</h2>
+  <!-- Title + logo inline -->
+  <div class="title-row">
+    <h2>Study Visit Feedback Form</h2>
+    <img src="data:image/jpeg;base64,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" alt="Logo">
+  </div>
+
   <form id="feedbackForm" onsubmit="return false;">
-    <label>Supervisor: <input type="text" id="supervisor" required></label>
-    <label>Start Date: <input type="date" id="startDate" required></label>
-    <label>End Date: <input type="date" id="endDate" required></label>
-    <label>Site Location: <input type="text" id="siteLocation" required></label>
-    <label>PI:</label>
-    <input type="text" id="piName" required>
-    <label>Study Name: <input type="text" id="studyName" required></label>
-    <label>Visit Number: <input type="text" id="visitNumber"></label>
-    
-    <label>Number of CRCs:</label>
-    <div class="inline-btn">
-      <input type="number" id="numCRCs" min="1" required>
-      <button type="button" id="addCrcBtn">Add CRCs</button>
-    </div>
-    
+    <label>Supervisor:<input type="text" id="supervisor" required></label>
+    <label>Study Visit Start Date:<input type="date" id="startDate" required></label>
+    <label>Study Visit End Date:<input type="date" id="endDate" required></label>
+    <label>Site Location (city and state):<input type="text" id="siteLocation" required></label>
+    <label>PI:</label><input type="text" id="piName" required>
+    <label>Study Name:<input type="text" id="studyName" required></label>
+    <label>Visit Number:<input type="text" id="visitNumber"></label>
+
+    <!-- Spinner-only CRC control -->
+    <label>Number of CRCs:
+      <input type="number" id="numCRCs" min="0" value="0" onkeydown="return false;">
+    </label>
+
     <div class="team-wrapper">
       <div class="team-section">
         <h3>Team Performance Feedback</h3>
-        <label>Data Quality: <textarea id="teamDataQuality"></textarea></label>
-        <label>Professionalism: <textarea id="teamProfessionalism"></textarea></label>
-        <label>Preparedness / Training Compliance: <textarea id="teamPreparedness"></textarea></label>
+        <label>Data Quality:<textarea id="teamDataQuality"></textarea></label>
+        <label>Professionalism:<textarea id="teamProfessionalism"></textarea></label>
+        <label>Preparedness / Training Compliance:<textarea id="teamPreparedness"></textarea></label>
       </div>
       <div class="definitions-box">
         <h4>Definitions</h4>
@@ -149,9 +66,9 @@
         <strong>Business Acumen & Professional Etiquette</strong>
         <ul>
           <li>Report on time in the clinic or hotel lobby as assigned by the Supervisor.</li>
-          <li>Limit cell phone usage to breaks (no social media/personal tasks during study visits).</li>
-          <li>Adhere to clinic dress code: Ora scrubs, appropriate inner/outer layers, closed-toed shoes.</li>
-          <li>Avoid: non-Ora scrubs, bright inner layers, sweatshirts/hoodies, crocs or unprofessional attire.</li>
+          <li>Limit cell phone usage on site to occasional staff breaks (should not be using social media or doing other personal tasks on their phone or computer during the study visit).</li>
+          <li>Adhere to clinic dress code by wearing Ora scrubs, appropriate innerlayer or outerlayer, and closed toed shoes.</li>
+          <li>Avoid: non-Ora scrubs, brightly colored innerlayers, sweatshirts, hoodies, crocs, or other unprofessional attire.</li>
         </ul>
         <strong>Study Preparedness & Training Compliance</strong>
         <ul>
@@ -160,15 +77,15 @@
         </ul>
       </div>
     </div>
-    
+
     <div id="crcContainer"></div>
-    
+
     <h3>Site Feedback</h3>
-    <label>Site Comments: <textarea id="siteComments"></textarea></label>
-    
+    <textarea id="siteComments" placeholder="(adequate number of exam rooms, PI availability, documents printed, CRCs delegated, supplies available)"></textarea>
+
     <h3>Additional Comments</h3>
-    <label><textarea id="additionalComments" placeholder="Any other feedback..."></textarea></label>
-    
+    <textarea id="additionalComments" placeholder="Any other feedback..."></textarea>
+
     <button type="button" onclick="generateReport()">Generate Report</button>
   </form>
 
@@ -177,328 +94,198 @@
   <button id="downloadBtn" class="hidden" onclick="downloadPDF()">Email & Download PDF</button>
 
   <script>
-    // ---------- CRC Button ----------
-    document.getElementById("addCrcBtn").addEventListener("click", generateCRCs);
+    // Persisting CRC data logic
+    document.getElementById("numCRCs").addEventListener("input", generateCRCs);
 
-    // ---------- Date helpers (timezone-safe: parse as LOCAL, not UTC) ----------
-    function parseDateLocal(yyyy_mm_dd) {
-      // Expect "YYYY-MM-DD" (from <input type="date">). Parse without timezone.
-      if (!yyyy_mm_dd) return null;
-      const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(yyyy_mm_dd);
-      if (!m) return null;
-      const [_, y, mo, d] = m;
-      return new Date(Number(y), Number(mo) - 1, Number(d)); // local midnight
+    function parseDateLocal(str){
+      if(!str) return null;
+      const m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(str);
+      if(!m) return null;
+      return new Date(+m[1],+m[2]-1,+m[3]);
+    }
+    function formatDate(str){
+      const d=parseDateLocal(str); if(!d) return "";
+      return `${String(d.getDate()).padStart(2,'0')}/${d.toLocaleString('en-US',{month:'short'})}/${d.getFullYear()}`;
+    }
+    function formatDateRange(a,b){
+      const s=formatDate(a), e=formatDate(b);
+      if(!s&&!e) return "";
+      if(s===e||!e) return s;
+      return `${s} to ${e}`;
     }
 
-    function formatDate(dateStr) {
-      const d = parseDateLocal(dateStr);
-      if (!d) return "";
-      const day = String(d.getDate()).padStart(2, '0');
-      const month = d.toLocaleString('en-US', { month: 'short' });
-      const year = d.getFullYear();
-      return `${day}/${month}/${year}`;
-    }
+    function generateCRCs(){
+      const container=document.getElementById("crcContainer");
+      const num=parseInt(document.getElementById("numCRCs").value)||0;
 
-    function formatDateRange(startStr, endStr) {
-      const start = formatDate(startStr);
-      const end = formatDate(endStr);
-      if (!start && !end) return "";
-      if (start === end || !end) return start;
-      return `${start} to ${end}`;
-    }
+      // Save existing values
+      const existing={};
+      container.querySelectorAll(".crc-section").forEach((sec,idx)=>{
+        const i=idx+1;
+        existing[i]={
+          name:document.getElementById("crcName"+i)?.value||"",
+          role:document.getElementById("crcRole"+i)?.value||"",
+          comments:document.getElementById("crcComments"+i)?.value||"",
+          deviation:document.getElementById("crcDeviation"+i)?.value||"No",
+          deviationText:document.getElementById("crcDeviationText"+i)?.value||""
+        };
+      });
 
-    // For EmailJS filename date (YYYY-MM-DD)
-    function toISODate(dateStr) {
-      const d = parseDateLocal(dateStr) || new Date();
-      const pad = n => String(n).padStart(2,'0');
-      return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
-    }
+      // Remove extra CRCs if number decreased
+      while(container.children.length>num){
+        container.removeChild(container.lastChild);
+      }
 
-    // Build a subject-safe date range (no slashes)
-    function subjectDateRange(startStr, endStr) {
-      const pretty = formatDateRange(startStr, endStr);        // e.g., 23/Sep/2025 to 25/Sep/2025
-      return pretty.replace(/\//g, "-");                       // -> 23-Sep-2025 to 25-Sep-2025
-    }
-
-    // ---------- CRC dynamic fields ----------
-    function generateCRCs() {
-      const container = document.getElementById("crcContainer");
-      container.innerHTML = "";
-      const num = parseInt(document.getElementById("numCRCs").value);
-      if (!num || num < 1) return;
-      
-      for (let i = 1; i <= num; i++) {
-        container.insertAdjacentHTML("beforeend", `
+      // Add new CRCs if number increased
+      for(let i=container.children.length+1;i<=num;i++){
+        container.insertAdjacentHTML("beforeend",`
           <div class="crc-section">
             <h4>CRC ${i}</h4>
-            <label>Name: <input type="text" id="crcName${i}" required></label>
-            <label>Role: <input type="text" id="crcRole${i}" required></label>
-            <label>Comments: <textarea id="crcComments${i}"></textarea></label>
-            
-            <label>Protocol Deviations? 
+            <label>Name:<input type="text" id="crcName${i}"></label>
+            <label>Role:<input type="text" id="crcRole${i}"></label>
+            <label>Comments:<textarea id="crcComments${i}"></textarea></label>
+            <label>Protocol Deviations?
               <select id="crcDeviation${i}" onchange="toggleDeviationField(${i})">
                 <option value="No">No</option>
                 <option value="Yes">Yes</option>
               </select>
             </label>
             <label id="deviationLabel${i}" style="display:none;">
-              Describe Deviations: <em>(type of deviation, cause of deviation and any corrective action taken)</em><br>
-              <textarea id="crcDeviationText${i}"></textarea>
+              Describe Deviations:
+              <textarea id="crcDeviationText${i}" placeholder="(type of deviation, cause of deviation, and any corrective action taken)"></textarea>
             </label>
           </div>`);
       }
-    }
 
-    function toggleDeviationField(i) {
-      const select = document.getElementById(`crcDeviation${i}`);
-      const label = document.getElementById(`deviationLabel${i}`);
-      if (select.value === "Yes") {
-        label.style.display = "block";
-      } else {
-        label.style.display = "none";
-        document.getElementById(`crcDeviationText${i}`).value = "";
-      }
-    }
-
-    // ---------- Report preview ----------
-    function generateReport() {
-      let reportHTML = `<strong>Supervisor:</strong> ${document.getElementById("supervisor").value}<br>`;
-      reportHTML += `<strong>Date:</strong> ${formatDateRange(document.getElementById("startDate").value, document.getElementById("endDate").value)}<br>`;
-      reportHTML += `<strong>Site:</strong> ${document.getElementById("siteLocation").value}<br>`;
-      reportHTML += `<strong>PI:</strong> ${document.getElementById("piName").value}<br>`;
-      reportHTML += `<strong>Study:</strong> ${document.getElementById("studyName").value}<br>`;
-      if (document.getElementById("visitNumber").value) {
-        reportHTML += `<strong>Visit #:</strong> ${document.getElementById("visitNumber").value}<br>`;
-      }
-      reportHTML += `<br><strong>Team Performance Feedback</strong><br>`;
-      reportHTML += `Data Quality: ${document.getElementById("teamDataQuality").value}<br>`;
-      reportHTML += `Professionalism: ${document.getElementById("teamProfessionalism").value}<br>`;
-      reportHTML += `Preparedness / Training Compliance: ${document.getElementById("teamPreparedness").value}<br><br>`;
-
-      const num = parseInt(document.getElementById("numCRCs").value);
-      for (let i = 1; i <= num; i++) {
-        const name = document.getElementById("crcName"+i).value || `CRC ${i}`;
-        reportHTML += `<strong>${name}</strong><br>`;
-        reportHTML += `Role: ${document.getElementById("crcRole"+i).value}<br>`;
-        reportHTML += `Comments: ${document.getElementById("crcComments"+i).value}<br>`;
-        const deviation = document.getElementById("crcDeviation"+i).value;
-        reportHTML += `Protocol Deviations: ${deviation}<br>`;
-        if (deviation === "Yes") {
-          reportHTML += `Deviation Details: ${document.getElementById("crcDeviationText"+i).value}<br>`;
+      // Restore values
+      for(const [i,vals] of Object.entries(existing)){
+        if(document.getElementById("crcName"+i)){
+          document.getElementById("crcName"+i).value=vals.name;
+          document.getElementById("crcRole"+i).value=vals.role;
+          document.getElementById("crcComments"+i).value=vals.comments;
+          document.getElementById("crcDeviation"+i).value=vals.deviation;
+          if(vals.deviation==="Yes"){
+            document.getElementById("deviationLabel"+i).style.display="block";
+            document.getElementById("crcDeviationText"+i).value=vals.deviationText;
+          }
         }
-        reportHTML += `<br>`;
       }
+    }
 
-      reportHTML += `<strong>Site Comments:</strong> ${document.getElementById("siteComments").value}<br><br>`;
-      reportHTML += `<strong>Additional Comments:</strong> ${document.getElementById("additionalComments").value}<br>`;
+    function toggleDeviationField(i){
+      const sel=document.getElementById(`crcDeviation${i}`);
+      const lbl=document.getElementById(`deviationLabel${i}`);
+      if(sel.value==="Yes"){ lbl.style.display="block"; }
+      else { lbl.style.display="none"; document.getElementById(`crcDeviationText${i}`).value=""; }
+    }
 
-      document.getElementById("reportOutput").innerHTML = reportHTML;
+    function generateReport(){
+      let h=`<strong>Supervisor:</strong> ${document.getElementById("supervisor").value}<br>`;
+      h+=`<strong>Date:</strong> ${formatDateRange(document.getElementById("startDate").value,document.getElementById("endDate").value)}<br>`;
+      h+=`<strong>Site:</strong> ${document.getElementById("siteLocation").value}<br>`;
+      h+=`<strong>PI:</strong> ${document.getElementById("piName").value}<br>`;
+      h+=`<strong>Study:</strong> ${document.getElementById("studyName").value}<br>`;
+      if(document.getElementById("visitNumber").value){
+        h+=`<strong>Visit #:</strong> ${document.getElementById("visitNumber").value}<br>`;
+      }
+      h+=`<br><strong>Team Performance Feedback</strong><br>`;
+      h+=`Data Quality: ${document.getElementById("teamDataQuality").value}<br>`;
+      h+=`Professionalism: ${document.getElementById("teamProfessionalism").value}<br>`;
+      h+=`Preparedness / Training Compliance: ${document.getElementById("teamPreparedness").value}<br><br>`;
+
+      const num=parseInt(document.getElementById("numCRCs").value||"0");
+      for(let i=1;i<=num;i++){
+        const name=document.getElementById("crcName"+i).value||`CRC ${i}`;
+        h+=`<strong>${name}</strong><br>`;
+        h+=`Role: ${document.getElementById("crcRole"+i).value}<br>`;
+        h+=`Comments: ${document.getElementById("crcComments"+i).value}<br>`;
+        const d=document.getElementById("crcDeviation"+i).value;
+        h+=`Protocol Deviations: ${d}<br>`;
+        if(d==="Yes"){ h+=`Deviation Details: ${document.getElementById("crcDeviationText"+i).value}<br>`; }
+        h+="<br>";
+      }
+      h+=`<strong>Site Feedback:</strong> ${document.getElementById("siteComments").value}<br><br>`;
+      h+=`<strong>Additional Comments:</strong> ${document.getElementById("additionalComments").value}<br>`;
+
+      document.getElementById("reportOutput").innerHTML=h;
       document.getElementById("downloadBtn").classList.remove("hidden");
     }
 
-    // ---------- EmailJS (with subject-safe range) ----------
-    const EMAIL_TO = "recipient@example.com"; // <- set the recipient you want
+    // --- EmailJS setup ---
     emailjs.init({ publicKey: "XrSFri5K-8boAX6f9" });
-    const EMAILJS_SERVICE_ID  = "service_yfhb0eo";
-    const EMAILJS_TEMPLATE_ID = "template_zduciok";
+    const EMAILJS_SERVICE_ID="service_yfhb0eo";
+    const EMAILJS_TEMPLATE_ID="template_zduciok";
+    const EMAIL_TO="recipient@example.com"; // change me
 
-    async function emailjs_sendAndSave(doc, filename) {
-      // Build dynamic values from the form (using local-date helpers)
-      const supervisor = document.getElementById("supervisor").value || "";
-      const site       = document.getElementById("siteLocation").value || "";
-      const pi         = document.getElementById("piName").value || "";
-      const study      = document.getElementById("studyName").value || "";
-      const visit      = document.getElementById("visitNumber").value || "";
-
-      const startVal = document.getElementById("startDate").value;
-      const endVal   = document.getElementById("endDate").value;
-
-      const dateRangePretty   = formatDateRange(startVal, endVal) || "";
-      const dateRangeForTitle = subjectDateRange(startVal, endVal) || "";
-      const isoDateForFilename = toISODate(startVal);
-
-      // Subject uses the hyphenated range to avoid HTML-escaped slashes
-      const subject = `Feedback - ${study}${visit ? " V" + visit : ""} - ${site} - ${dateRangeForTitle}`;
-
-      // PDF as base64 data URL
-      const dataUrl = doc.output("datauristring");
-
-      // Params sent to EmailJS (names must match your template placeholders)
-      const params = {
-        to_email: EMAIL_TO,
-        subject: subject,                  // if your template's Subject is {{subject}}, this will be used
-        message: "Attached is the Study Visit Feedback PDF.",
-        date: isoDateForFilename,          // used by Study_Visit_{{date}}.pdf in attachments
-
-        // Dynamic fields for the email template body:
-        supervisor: supervisor,
-        study: study,
-        site: site,
-        visit: visit,
-        pi: pi,
-        date_range: dateRangePretty,       // body keeps slashes, looks nice
-
-        // Extra: subject-safe date range if you want to build subject inside template
-        subject_date_range: dateRangeForTitle,
-
-        // Attachment
-        pdf_data: dataUrl
-      };
-
-      try {
-        await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, params);
-        doc.save(filename);
-        alert("PDF emailed successfully!");
-      } catch (err) {
-        console.error("EmailJS send error:", err);
-        alert("Email failed — downloading locally anyway.");
-        doc.save(filename);
-      }
+    async function emailjs_sendAndSave(doc,filename){
+      const supervisor=document.getElementById("supervisor").value||"";
+      const site=document.getElementById("siteLocation").value||"";
+      const pi=document.getElementById("piName").value||"";
+      const study=document.getElementById("studyName").value||"";
+      const visit=document.getElementById("visitNumber").value||"";
+      const dateRangePretty=formatDateRange(document.getElementById("startDate").value,document.getElementById("endDate").value)||"";
+      const subject=`Feedback – ${study}${visit?" V"+visit:""} – ${site} – ${dateRangePretty.replace(/\//g,"-")}`;
+      const dataUrl=doc.output("datauristring");
+      const params={to_email:EMAIL_TO,subject,message:"Attached is the Study Visit Feedback PDF.",supervisor,study,site,visit,pi,date_range:dateRangePretty,pdf_data:dataUrl};
+      try{await emailjs.send(EMAILJS_SERVICE_ID,EMAILJS_TEMPLATE_ID,params);doc.save(filename);alert("PDF emailed successfully!");}
+      catch(err){console.error("EmailJS send error:",err);alert("Email failed — downloading locally anyway.");doc.save(filename);}
     }
 
-    // ---- PDF generator (original content; final line patched) ----
-    async function downloadPDF() {
-      const { jsPDF } = window.jspdf;
-      const doc = new jsPDF();
+    async function downloadPDF(){
+      const {jsPDF}=window.jspdf;
+      const doc=new jsPDF();
+      const margin=15, topMargin=32, lineHeight=7;
+      const pageW=doc.internal.pageSize.getWidth();
+      const pageH=doc.internal.pageSize.getHeight();
+      const textW=pageW-margin*2; let y=topMargin;
 
-      const margin = 15;
-      const topMargin = 28;
-      const bottomMargin = 15;
-      const lineHeight = 6.5;
-      const pageW = doc.internal.pageSize.getWidth();
-      const pageH = doc.internal.pageSize.getHeight();
-      const textW = pageW - margin * 2;
-      let y = topMargin;
+      doc.setFillColor(0,80,158); doc.rect(0,0,pageW,25,"F");
+      doc.setTextColor(255,255,255); doc.setFont("helvetica","bold"); doc.setFontSize(14);
+      doc.text("Study Visit Feedback", margin, 16);
+      doc.setTextColor(0,0,0);
 
-      // Colored header
-      doc.setFillColor(0, 80, 158);
-      doc.rect(0, 0, pageW, 20, "F");
-      doc.setTextColor(255, 255, 255);
-      doc.setFont("helvetica", "bold");
-      doc.setFontSize(14);
-      doc.text("Study Visit Feedback", margin, 12);
-      doc.setTextColor(0, 0, 0);
+      const logo="data:image/jpeg;base64,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";
+      doc.addImage(logo,"JPEG",pageW-45,3,25,20); // taller, less wide
 
-      function addPageIfNeeded(lines = 1) {
-        if (y + lines * lineHeight > pageH - bottomMargin) {
-          doc.addPage();
-          y = topMargin;
-        }
+      function addPageIfNeeded(lines=1){if(y+lines*lineHeight>pageH-15){doc.addPage();y=topMargin;}}
+      function printSectionTitle(text){doc.setFont("helvetica","bold");doc.setFontSize(11);addPageIfNeeded();doc.text(text,margin,y);doc.line(margin,y+1,margin+doc.getTextWidth(text),y+1);y+=lineHeight;}
+      function printKV(label,value,indent=0){if(!value)return;doc.setFontSize(11);const xLabel=margin+indent;const text=label?label+": "+value:value;const lines=doc.splitTextToSize(text,textW-indent);addPageIfNeeded(lines.length);doc.setFont("helvetica","normal");doc.text(lines,xLabel,y);y+=lines.length*lineHeight;}
+
+      printKV("Supervisor",document.getElementById("supervisor").value);
+      printKV("Date",formatDateRange(document.getElementById("startDate").value,document.getElementById("endDate").value));
+      printKV("Site",document.getElementById("siteLocation").value);
+      printKV("PI",document.getElementById("piName").value);
+      printKV("Study",document.getElementById("studyName").value);
+      if(document.getElementById("visitNumber").value){printKV("Visit #",document.getElementById("visitNumber").value);}
+      y+=lineHeight;
+
+      printSectionTitle("Team Performance Feedback");
+      printKV("Data Quality",document.getElementById("teamDataQuality").value,4);
+      printKV("Professionalism",document.getElementById("teamProfessionalism").value,4);
+      printKV("Preparedness / Training Compliance",document.getElementById("teamPreparedness").value,4);
+
+      const num=parseInt(document.getElementById("numCRCs").value||"0");
+      for(let i=1;i<=num;i++){
+        y+=lineHeight;printSectionTitle(document.getElementById("crcName"+i).value||`CRC ${i}`);
+        printKV("Role",document.getElementById("crcRole"+i).value,4);
+        printKV("Comments",document.getElementById("crcComments"+i).value,4);
+        const d=document.getElementById("crcDeviation"+i).value;
+        printKV("Protocol Deviations",d,4);
+        if(d==="Yes"){printKV("Deviation Details",document.getElementById("crcDeviationText"+i).value,4);}
       }
 
-      function printKV(label, value, indent = 0) {
-        if (!value && value !== 0) return;
-        const labelText = label ? label + ":" : "";
-        doc.setFontSize(11);
-        const xLabel = margin + indent;
+      y+=lineHeight;printSectionTitle("Site Feedback");
+      printKV("",document.getElementById("siteComments").value);
+      y+=lineHeight;printSectionTitle("Additional Comments");
+      printKV("",document.getElementById("additionalComments").value);
 
-        if (labelText) {
-          doc.setFont("helvetica", "bold");
-          const labelWidth = doc.getTextWidth(labelText);
-          const xValue = xLabel + labelWidth + 3;
-          const maxLabelWidth = textW * 0.45;
+      const start=formatDate(document.getElementById("startDate").value)||"NoStart";
+      const end=formatDate(document.getElementById("endDate").value)||"NoEnd";
+      const site=(document.getElementById("siteLocation").value||"NoSite").replace(/\s+/g,"_");
+      const study=(document.getElementById("studyName").value||"NoStudy").replace(/\s+/g,"_");
+      const filename=(start===end||!end)?`Feedback_${start}_${site}_${study}.pdf`:`Feedback_${start}_to_${end}_${site}_${study}.pdf`;
 
-          if (labelWidth > maxLabelWidth || xValue > margin + textW - 10) {
-            // Long label → value on next line
-            const labelLines = doc.splitTextToSize(labelText, textW - indent);
-            addPageIfNeeded(labelLines.length);
-            doc.text(labelLines, xLabel, y);
-            y += labelLines.length * lineHeight;
-
-            doc.setFont("helvetica", "normal");
-            const valueLines = doc.splitTextToSize(String(value), textW - indent - 6);
-            addPageIfNeeded(valueLines.length);
-            doc.text(valueLines, xLabel + 6, y);
-            y += valueLines.length * lineHeight;
-          } else {
-            // Same line
-            addPageIfNeeded(1);
-            doc.text(labelText, xLabel, y);
-            doc.setFont("helvetica", "normal");
-            const vLines = doc.splitTextToSize(String(value), textW - (xValue - margin));
-            doc.text(vLines[0], xValue, y);
-            for (let i = 1; i < vLines.length; i++) {
-              y += lineHeight;
-              addPageIfNeeded(1);
-              doc.text(vLines[i], xValue, y);
-            }
-            y += lineHeight;
-          }
-        } else {
-          // No label (used for section body blocks)
-          doc.setFont("helvetica", "normal");
-          const lines = doc.splitTextToSize(String(value), textW - indent);
-          addPageIfNeeded(lines.length);
-          doc.text(lines, xLabel, y);
-          y += lines.length * lineHeight;
-        }
-      }
-
-      function printSectionTitle(text, underline = false) {
-        doc.setFont("helvetica", "bold");
-        doc.setFontSize(11);
-        const lines = doc.splitTextToSize(text, textW);
-        addPageIfNeeded(lines.length);
-        doc.text(lines, margin, y);
-        if (underline) {
-          const lineW = doc.getTextWidth(text);
-          doc.setLineWidth(0.5);
-          doc.line(margin, y + 1, margin + lineW, y + 1);
-        }
-        y += lines.length * lineHeight;
-      }
-
-      function gap(mult = 1) { y += lineHeight * mult; }
-
-      // Body summary
-      printKV("Supervisor", document.getElementById("supervisor").value);
-      printKV("Date", formatDateRange(document.getElementById("startDate").value, document.getElementById("endDate").value));
-      printKV("Site", document.getElementById("siteLocation").value);
-      printKV("PI", document.getElementById("piName").value);
-      printKV("Study", document.getElementById("studyName").value);
-      if (document.getElementById("visitNumber").value) {
-        printKV("Visit #", document.getElementById("visitNumber").value);
-      }
-
-      gap(0.5);
-      printSectionTitle("Team Performance Feedback", true);
-      printKV("Data Quality", document.getElementById("teamDataQuality").value, 4);
-      printKV("Professionalism", document.getElementById("teamProfessionalism").value, 4);
-      printKV("Preparedness / Training Compliance", document.getElementById("teamPreparedness").value, 4);
-
-      // CRCs
-      const num = parseInt(document.getElementById("numCRCs").value || "0", 10);
-      for (let i = 1; i <= num; i++) {
-        gap(0.5);
-        const name = document.getElementById("crcName"+i).value || `CRC ${i}`;
-        printSectionTitle(name, true);
-        printKV("Role", document.getElementById("crcRole"+i).value, 4);
-        printKV("Comments", document.getElementById("crcComments"+i).value, 4);
-        const deviation = document.getElementById("crcDeviation"+i).value;
-        printKV("Protocol Deviations", deviation, 4);
-        if (deviation === "Yes") {
-          printKV("Deviation Details", document.getElementById("crcDeviationText"+i).value, 4);
-        }
-      }
-
-      gap(0.5);
-      printSectionTitle("Site Comments", true);
-      printKV("", document.getElementById("siteComments").value);
-      gap(0.5);
-      printSectionTitle("Additional Comments", true);
-      printKV("", document.getElementById("additionalComments").value);
-
-      // Filename
-      const start = formatDate(document.getElementById("startDate").value) || "NoStart";
-      const end = formatDate(document.getElementById("endDate").value) || "NoEnd";
-      const site = (document.getElementById("siteLocation").value || "NoSite").replace(/\s+/g, "_");
-      const study = (document.getElementById("studyName").value || "NoStudy").replace(/\s+/g, "_");
-      const filename = (start === end || !end) 
-        ? `Feedback_${start}_${site}_${study}.pdf`
-        : `Feedback_${start}_to_${end}_${site}_${study}.pdf`;
-
-      // Email via EmailJS with dynamic fields, then save locally
-      await emailjs_sendAndSave(doc, filename);
+      await emailjs_sendAndSave(doc,filename);
     }
   </script>
 </body>
